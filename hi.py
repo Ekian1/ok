@@ -1,40 +1,50 @@
 import tkinter as tk
 from tkinter import messagebox
-import itertools
 
-# Show all warnings before starting
-messagebox.showinfo(
-    "⚠ WARNING 1 ⚠",
-    "This is a FAKE malware simulator."
+# Initial confirmation
+confirm = messagebox.askyesno(
+    "⚠ Harmless Ransom Simulator ⚠",
+    "This is a FAKE ransom simulator for entertainment/content creation only.\n"
+    "It will show a fake ransom note on your screen.\n\n"
+    "It is completely SAFE and does NOT touch any files.\n"
+    "Do you want to run it?"
 )
-messagebox.showinfo(
-    "⚠ WARNING 2 ⚠",
-    "It will flash colors rapidly across your screen in fullscreen."
-)
-messagebox.showinfo(
-    "⚠ WARNING 3 ⚠",
-    "⚠ Epilepsy warning ⚠\n"
-    "This simulation is SAFE. It does NOT touch your files or harm your computer.\n"
-    "Press 'X' on your keyboard to stop the simulation."
-)
+
+if not confirm:
+    exit()  # User chose not to run
 
 # Create fullscreen, borderless window
 root = tk.Tk()
 root.attributes('-fullscreen', True)
-root.attributes('-topmost', True)  # keep on top
-root.config(cursor="none")          # hide cursor
+root.attributes('-topmost', True)
+root.config(cursor="none")  # Hide cursor for effect
 
-# Colors for flashing
-colors = ["red", "green", "blue", "yellow", "magenta", "cyan", "orange"]
-color_cycle = itertools.cycle(colors)
+# Disable all other close events
+root.protocol("WM_DELETE_WINDOW", lambda: None)
 
+# Fake ransom text
+ransom_text = """⚠⚠⚠ YOUR FILES HAVE BEEN "ENCRYPTED" ⚠⚠⚠
+
+This is a FAKE ransom simulator.
+Do NOT worry, your files are SAFE.
+
+Press 'X' on your keyboard to exit at any time.
+For entertainment and content creation purposes only.
+"""
+
+# Label to display the text
+label = tk.Label(
+    root,
+    text=ransom_text,
+    font=("Courier", 24, "bold"),
+    fg="red",
+    bg="black",
+    justify="center"
+)
+label.pack(expand=True)
+
+# Stop flag
 stop_program = False
-
-# Flashing function
-def flash():
-    if not stop_program:
-        root.configure(bg=next(color_cycle))
-        root.after(100, flash)
 
 # Key press handler for only X
 def key_press(event):
@@ -45,12 +55,6 @@ def key_press(event):
 
 # Bind keypress
 root.bind("<Key>", key_press)
-
-# Disable all other window close events
-root.protocol("WM_DELETE_WINDOW", lambda: None)
-
-# Start flashing
-flash()
 
 # Run GUI loop
 root.mainloop()

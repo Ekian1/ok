@@ -3,33 +3,32 @@ from tkinter import messagebox
 import os
 import shutil
 
-# --- Warnings before running ---
-messagebox.showinfo(
-    "⚠ Harmless Ransom Simulator ⚠",
-    "This is a FAKE ransomware simulator for entertainment/content creation only.\n"
-    "It is completely SAFE and does NOT delete or harm your files.\n"
-    "Click OK to continue."
-)
-messagebox.showinfo(
-    "⚠ Epilepsy Warning ⚠",
-    "The simulation may flash colors or display a fullscreen effect.\n"
-    "You must type the secret code from the ransom note to exit."
-)
+# --- Step 1: Warnings ---
+def show_warnings():
+    messagebox.showinfo(
+        "⚠ Harmless Ransom Simulator ⚠",
+        "This is a FAKE ransomware simulator for entertainment/content creation only.\n"
+        "It is completely SAFE and does NOT delete or harm your files."
+    )
+    messagebox.showinfo(
+        "⚠ Epilepsy Warning ⚠",
+        "The simulation may flash colors or display a fullscreen effect.\n"
+        "You must type the secret code from the ransom note to exit."
+    )
 
-# --- Setup ---
-SECRET_CODE = "LETMEOUT"  # Code shown only inside ransom note
+show_warnings()  # Only proceed after clicking OK twice
 
-# Create folder for fake encryption
+# --- Step 2: Setup ---
+SECRET_CODE = "LETMEOUT"  # Code shown only in ransom note
 ENCRYPTION_FOLDER = "ENCRYPTION"
 os.makedirs(ENCRYPTION_FOLDER, exist_ok=True)
 
-# List files in current directory (safe demo)
+# Copy files into "encrypted" folder (safe)
 for file in os.listdir():
     if os.path.isfile(file) and file != os.path.basename(__file__):
-        # Move file to encryption folder (harmless, just moves a copy)
         shutil.copy(file, os.path.join(ENCRYPTION_FOLDER, file))
 
-# --- Fullscreen Ransom Note ---
+# --- Step 3: Fullscreen Ransom Note ---
 root = tk.Tk()
 root.attributes('-fullscreen', True)
 root.attributes('-topmost', True)
@@ -60,7 +59,7 @@ label = tk.Label(
 )
 label.pack(expand=True)
 
-# --- Full code typing logic ---
+# --- Step 4: Secret code typing logic ---
 typed_code = ""
 
 def key_press(event):
@@ -71,4 +70,5 @@ def key_press(event):
 
 root.bind("<Key>", key_press)
 
+# --- Step 5: Run GUI loop ---
 root.mainloop()

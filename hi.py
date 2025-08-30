@@ -1,15 +1,23 @@
-import time
-import os
+import tkinter as tk
+import itertools
 
-colors = ["\033[41m", "\033[42m", "\033[43m", "\033[44m", "\033[45m", "\033[46m"]
-reset = "\033[0m"
+# Create window
+root = tk.Tk()
+root.title("Fake Malware")
+root.geometry("500x500")
+root.resizable(False, False)
 
-try:
-    while True:
-        for color in colors:
-            os.system('cls' if os.name == 'nt' else 'clear')
-            print(color + " " * 50 + reset)
-            time.sleep(0.2)
-except KeyboardInterrupt:
-    os.system('cls' if os.name == 'nt' else 'clear')
-    print("Stopped flashing safely!")
+# Colors to flash
+colors = ["red", "green", "blue", "yellow", "magenta", "cyan"]
+color_cycle = itertools.cycle(colors)
+
+# Function to change background color
+def flash():
+    root.configure(bg=next(color_cycle))
+    root.after(100, flash)  # change every 100ms
+
+# Start flashing
+flash()
+
+# Start GUI loop
+root.mainloop()

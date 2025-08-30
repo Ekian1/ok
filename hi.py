@@ -2,21 +2,28 @@ import tkinter as tk
 from tkinter import messagebox
 import itertools
 
-# Show initial warning
+# Show all warnings before starting
 messagebox.showinfo(
-    "⚠ WARNING ⚠",
-    "This is a FAKE malware simulation.\n"
-    "It will flash colors across your screen in fullscreen.\n"
+    "⚠ WARNING 1 ⚠",
+    "This is a FAKE malware simulator."
+)
+messagebox.showinfo(
+    "⚠ WARNING 2 ⚠",
+    "It will flash colors rapidly across your screen in fullscreen."
+)
+messagebox.showinfo(
+    "⚠ WARNING 3 ⚠",
     "⚠ Epilepsy warning ⚠\n"
-    "It does NOT touch your files or harm your computer.\n"
-    "Press 'X' on your keyboard to stop the simulation at any time."
+    "This simulation is SAFE. It does NOT touch your files or harm your computer.\n"
+    "Press 'X' on your keyboard to stop the simulation."
 )
 
-# Create fullscreen window
+# Create fullscreen, borderless window
 root = tk.Tk()
 root.title("Fake Malware Simulator")
-root.attributes('-fullscreen', True)  # covers entire screen
-root.config(cursor="none")  # optional: hide cursor for effect
+root.attributes('-fullscreen', True)
+root.attributes('-topmost', True)  # keep on top
+root.config(cursor="none")          # hide cursor
 
 # Instructions label
 label = tk.Label(
@@ -32,7 +39,6 @@ label.pack(expand=True)
 colors = ["red", "green", "blue", "yellow", "magenta", "cyan", "orange"]
 color_cycle = itertools.cycle(colors)
 
-# Stop flag
 stop_program = False
 
 # Flashing function
@@ -41,7 +47,7 @@ def flash():
         root.configure(bg=next(color_cycle))
         root.after(100, flash)
 
-# Key press handler
+# Key press handler for only X
 def key_press(event):
     global stop_program
     if event.keysym.lower() == 'x':
@@ -50,6 +56,9 @@ def key_press(event):
 
 # Bind keypress
 root.bind("<Key>", key_press)
+
+# Disable window manager close buttons (Alt+F4, close X)
+root.protocol("WM_DELETE_WINDOW", lambda: None)
 
 # Start flashing
 flash()

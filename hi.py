@@ -1,24 +1,5 @@
 import tkinter as tk
 import itertools
-from pynput import keyboard
-
-# Global stop flag
-stop_program = False
-
-# Function to handle keypresses
-def on_press(key):
-    global stop_program
-    try:
-        if key.char.lower() == 'x':  # Press X to stop
-            stop_program = True
-            root.destroy()
-    except AttributeError:
-        pass
-
-# Start keyboard listener
-from pynput import keyboard
-listener = keyboard.Listener(on_press=on_press)
-listener.start()
 
 # Create main window
 root = tk.Tk()
@@ -35,12 +16,27 @@ label.pack(expand=True)
 colors = ["red", "green", "blue", "yellow", "magenta", "cyan", "orange"]
 color_cycle = itertools.cycle(colors)
 
-# Function to flash background
+# Flag to stop flashing
+stop_program = False
+
+# Flashing function
 def flash():
     if not stop_program:
         root.configure(bg=next(color_cycle))
-        root.after(100, flash)
+        root.after(100, flash)  # change every 100ms
 
+# Key press handler
+def key_press(event):
+    global stop_program
+    if event.keysym.lower() == 'x':
+        stop_program = True
+        root.destroy()
+
+# Bind all key presses
+root.bind("<Key>", key_press)
+
+# Start flashing
 flash()
+
+# Run GUI loop
 root.mainloop()
-listener.stop()

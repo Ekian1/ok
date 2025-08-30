@@ -1,43 +1,48 @@
 import tkinter as tk
-from tkinter import messagebox, simpledialog
+from tkinter import messagebox
 import os
+import shutil
 
-# All warnings first
+# --- Warnings before running ---
 messagebox.showinfo(
     "⚠ Harmless Ransom Simulator ⚠",
-    "This is a FAKE ransomware simulator for entertainment and content creation only.\n"
-    "It is completely SAFE and does NOT touch your files.\n"
+    "This is a FAKE ransomware simulator for entertainment/content creation only.\n"
+    "It is completely SAFE and does NOT delete or harm your files.\n"
     "Click OK to continue."
 )
 messagebox.showinfo(
     "⚠ Epilepsy Warning ⚠",
     "The simulation may flash colors or display a fullscreen effect.\n"
-    "You must enter the secret code from the ransom note to exit."
+    "You must type the secret code from the ransom note to exit."
 )
 
-# Secret code setup
-SECRET_CODE = "LETMEOUT"
+# --- Setup ---
+SECRET_CODE = "LETMEOUT"  # Code shown only inside ransom note
 
-# Create a fake encryption file (harmless)
-fake_file_name = "FAKE_ENCRYPTED_DATA.txt"
-with open(fake_file_name, "w") as f:
-    f.write("ALL YOUR FILES HAVE BEEN 'ENCRYPTED'!\n")
-    f.write("This is completely harmless and for entertainment only.\n")
+# Create folder for fake encryption
+ENCRYPTION_FOLDER = "ENCRYPTION"
+os.makedirs(ENCRYPTION_FOLDER, exist_ok=True)
 
-# Fullscreen window
+# List files in current directory (safe demo)
+for file in os.listdir():
+    if os.path.isfile(file) and file != os.path.basename(__file__):
+        # Move file to encryption folder (harmless, just moves a copy)
+        shutil.copy(file, os.path.join(ENCRYPTION_FOLDER, file))
+
+# --- Fullscreen Ransom Note ---
 root = tk.Tk()
 root.attributes('-fullscreen', True)
 root.attributes('-topmost', True)
 root.config(cursor="none")
-root.protocol("WM_DELETE_WINDOW", lambda: None)  # disable Alt+F4
+root.protocol("WM_DELETE_WINDOW", lambda: None)  # Disable Alt+F4
 
-# Ransom note text (includes secret code)
 ransom_text = f"""⚠⚠⚠ YOUR FILES HAVE BEEN "ENCRYPTED" ⚠⚠⚠
 
 This is a FAKE ransomware simulator.
 Do NOT worry, your files are SAFE.
 
-A fake encrypted file '{fake_file_name}' has been created.
+All your files have been copied to the folder '{ENCRYPTION_FOLDER}'.
+They were NOT deleted or harmed.
 
 To exit this simulator, type the secret code below:
 SECRET CODE: {SECRET_CODE}
@@ -45,7 +50,6 @@ SECRET CODE: {SECRET_CODE}
 For entertainment and content creation purposes only.
 """
 
-# Display ransom note
 label = tk.Label(
     root,
     text=ransom_text,
@@ -56,19 +60,15 @@ label = tk.Label(
 )
 label.pack(expand=True)
 
-# Full code typing buffer
+# --- Full code typing logic ---
 typed_code = ""
 
-# Key press handler
 def key_press(event):
     global typed_code
-    global stop_program
     typed_code += event.char.upper()
-    # Check if last characters match secret code
     if typed_code[-len(SECRET_CODE):] == SECRET_CODE:
         root.destroy()
 
 root.bind("<Key>", key_press)
 
-# Run GUI loop
 root.mainloop()

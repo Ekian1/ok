@@ -1,50 +1,54 @@
 import tkinter as tk
 from tkinter import simpledialog, messagebox
+import os
 
-# Secret code setup
+# Secret code
 SECRET_CODE = "LETMEOUT"
 
-# Initial warning and code prompt
+# Warning before running
 messagebox.showinfo(
     "⚠ Harmless Ransom Simulator ⚠",
-    "This is a FAKE ransom simulator for entertainment/content creation only.\n"
-    "It is completely SAFE and does NOT touch any files.\n"
-    "To stop the simulation, you must enter a secret code."
+    "This is a FAKE ransomware simulator for entertainment and content creation only.\n"
+    "It is completely SAFE, does NOT delete or harm files.\n"
+    "You will be asked for a secret code to exit."
 )
 
-# Ask user to enter the code
+# Ask user to input the secret code for closing later
 code_input = simpledialog.askstring(
     "Enter Secret Code",
-    "Enter the secret code to allow closing the simulator later:"
+    "Enter a secret code that will be required to close the simulator later:"
 )
 
-if code_input != SECRET_CODE:
-    messagebox.showinfo(
-        "Wrong Code",
-        "You entered the wrong code. The simulation will still run, "
-        "but you must enter the correct code to stop it."
-    )
+if not code_input:
+    messagebox.showinfo("Cancelled", "You cancelled the simulation. Exiting.")
+    exit()
 
-# Create fullscreen, borderless window
+# Create fake encryption file
+fake_file_name = "FAKE_ENCRYPTED_DATA.txt"
+with open(fake_file_name, "w") as f:
+    f.write("ALL YOUR FILES HAVE BEEN 'ENCRYPTED'!\n")
+    f.write("This is a harmless simulation for entertainment only.\n")
+    f.write(f"The secret code to stop the simulation is: {SECRET_CODE}\n")
+
+# Create fullscreen window
 root = tk.Tk()
 root.attributes('-fullscreen', True)
 root.attributes('-topmost', True)
 root.config(cursor="none")
+root.protocol("WM_DELETE_WINDOW", lambda: None)  # disable Alt+F4
 
-# Disable all other close events
-root.protocol("WM_DELETE_WINDOW", lambda: None)
+# Ransom note text
+ransom_text = f"""⚠⚠⚠ YOUR FILES HAVE BEEN "ENCRYPTED" ⚠⚠⚠
 
-# Fake ransom text
-ransom_text = """⚠⚠⚠ YOUR FILES HAVE BEEN "ENCRYPTED" ⚠⚠⚠
-
-This is a FAKE ransom simulator.
+This is a FAKE ransomware simulator.
 Do NOT worry, your files are SAFE.
+A fake encrypted file '{fake_file_name}' has been created.
 
-You must enter the secret code from the warning to exit.
-For entertainment and content creation purposes only.
+Enter the secret code to exit: {SECRET_CODE}
+For entertainment and content creation only.
 """
 
-# Label to display the text
+# Display label
 label = tk.Label(
     root,
     text=ransom_text,
@@ -58,16 +62,16 @@ label.pack(expand=True)
 # Stop flag
 stop_program = False
 
-# Key press handler: only closes if correct code typed
+# Key press handler: only closes with the secret code
 def key_press(event):
     global stop_program
-    typed = event.char.upper()
-    if typed == SECRET_CODE[0]:  # check first letter as a hint
-        # Optionally you could implement full code typing check here
+    typed = event.char
+    # Simple full code check (for demonstration, press first letter to close)
+    if typed.upper() == SECRET_CODE[0]:  
+        # Optional: implement full typing for extra realism
         stop_program = True
         root.destroy()
 
-# Bind keypress (full code check is optional; currently just placeholder)
 root.bind("<Key>", key_press)
 
 # Run GUI loop

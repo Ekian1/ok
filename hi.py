@@ -20,20 +20,9 @@ messagebox.showinfo(
 
 # Create fullscreen, borderless window
 root = tk.Tk()
-root.title("Fake Malware Simulator")
 root.attributes('-fullscreen', True)
 root.attributes('-topmost', True)  # keep on top
 root.config(cursor="none")          # hide cursor
-
-# Instructions label
-label = tk.Label(
-    root,
-    text="Press 'X' to stop the simulation.\nThis is SAFE!",
-    font=("Arial", 24),
-    fg="white",
-    bg="black"
-)
-label.pack(expand=True)
 
 # Colors for flashing
 colors = ["red", "green", "blue", "yellow", "magenta", "cyan", "orange"]
@@ -57,7 +46,7 @@ def key_press(event):
 # Bind keypress
 root.bind("<Key>", key_press)
 
-# Disable window manager close buttons (Alt+F4, close X)
+# Disable all other window close events
 root.protocol("WM_DELETE_WINDOW", lambda: None)
 
 # Start flashing

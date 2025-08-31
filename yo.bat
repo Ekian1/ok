@@ -11,6 +11,7 @@ set "TASKNAME=%APP%Task"
 
 if "%~1"=="" (
   echo Usage: %~nx0 simulate ^| cleanup
+  pause
   exit /b 1
 )
 
@@ -28,6 +29,7 @@ echo ======================================================
 set /p CONFIRM=Type I-UNDERSTAND to proceed: 
 if /i not "%CONFIRM%"=="I-UNDERSTAND" (
   echo Aborted.
+  pause
   exit /b 1
 )
 goto :eof
@@ -48,10 +50,23 @@ rem 2) Add RunOnce reg key (opens notepad once at next login)
 reg add "%RUNKEY%" /v "%RUNVAL%" /d "notepad.exe" /f >nul
 call :log "Set RunOnce registry key %RUNKEY%\%RUNVAL%"
 
-rem 3) Scheduled task to run Notepad once in 1 min
-schtasks /create /sc once /st 00:00 /tn "%TASKNAME%" /tr "notepad.exe" /f >nul
-schtasks /change /tn "%TASKNAME%" /st %time:~0,5% >nul
-call :log "Created scheduled task %TASKNAME% to run notepad.exe once"
+rem 3) Scheduled task to run Notepad 1 minute from now
+for /f "tokens=1-4 delims=:. " %%a in ("%time%") do (
+  set HH=%%a
+  set MM=%%b
+)
+set /a MM+=1
+if %MM% geq 60 (
+  set /a MM=0
+  set /a HH+=1
+)
+if %HH% geq 24 set HH=0
+if %MM% lss 10 set MM=0%MM%
+if %HH% lss 10 set HH=0%HH%
+set "RUNTIME=%HH%:%MM%"
+
+schtasks /create /sc once /st %RUNTIME% /tn "%TASKNAME%" /tr "notepad.exe" /f >nul
+call :log "Created scheduled task %TASKNAME% for %RUNTIME%"
 
 rem 4) Localhost "network activity"
 ping 127.0.0.1 -n 1 >nul
@@ -59,6 +74,7 @@ call :log "Pinged localhost (127.0.0.1) as network simulation"
 
 call :log "Simulation complete"
 echo Simulation complete. See log at %LOG%
+pause
 exit /b 0
 
 :cleanup
@@ -75,6 +91,7 @@ call :log "Removed temp directory %BASE%"
 
 call :log "Cleanup complete"
 echo Cleanup complete.
+pause
 exit /b 0
 
 if /i "%~1"=="simulate" goto :simulate

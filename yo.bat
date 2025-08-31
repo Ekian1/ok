@@ -30,14 +30,16 @@ echo.
 pause
 
 :: --- Double confirmation gate ---
+cls
 set "CONFIRM1="
 set "CONFIRM2="
-cls
+
 echo Type EXACTLY: I UNDERSTAND THIS IS A SIMULATION
 set /p "CONFIRM1=> "
 if /I not "%CONFIRM1%"=="I UNDERSTAND THIS IS A SIMULATION" (
   echo Confirmation failed. Exiting safely.
-  goto :EOF
+  pause
+  exit /b
 )
 
 echo.
@@ -45,9 +47,15 @@ echo Final confirmation. Type EXACTLY: RUN SIMULATOR
 set /p "CONFIRM2=> "
 if /I not "%CONFIRM2%"=="RUN SIMULATOR" (
   echo Confirmation failed. Exiting safely.
-  goto :EOF
+  pause
+  exit /b
 )
 
+:: --- If both confirmations correct, continue to simulator ---
+goto simulator
+
+
+:simulator
 :: --- Countdown with escape hint ---
 cls
 echo Starting in 5 seconds... Press CTRL+C to abort.
@@ -72,18 +80,11 @@ echo [%DATE% %TIME%] Simulator started > "%LOG%"
 
 :: --- Generate dummy files (stage1) ---
 echo Creating dummy files in "%SIM%\stage1" ...
-for /l %%I in (1,1,50) do (
+for /l %%I in (1,1,20) do (
   set "F=%SIM%\stage1\report_%%I.txt"
   > "!F!" echo This is harmless dummy file number %%I
 )
-echo [%DATE% %TIME%] Created 50 files >> "%LOG%"
-
-:: --- Simulate "enumeration" ---
-echo Enumerating system info (simulated)...
-ver >> "%LOG%"
-echo USERNAME=%USERNAME% >> "%LOG%"
-echo COMPUTERNAME=%COMPUTERNAME% >> "%LOG%"
-timeout /t 1 >nul
+echo [%DATE% %TIME%] Created dummy files >> "%LOG%"
 
 :: --- Simulate "encryption" by renaming extensions ---
 echo Simulating encryption...
@@ -91,7 +92,6 @@ for %%F in ("%SIM%\stage1\*.txt") do (
   ren "%%~fF" "%%~nF.locked" 2>nul
 )
 echo [%DATE% %TIME%] Renamed *.txt to *.locked >> "%LOG%"
-call :progress "Encrypting" 40
 
 :: --- Fake ransom note (inside sandbox only) ---
 (
@@ -100,30 +100,12 @@ call :progress "Encrypting" 40
   echo No real encryption occurred. This is a demo.
 ) > "%SIM%\stage1\READ_ME_SIMULATION.txt"
 
-:: --- Simulate "exfiltration" (just copy internally) ---
-echo Simulating exfiltration to stage2 (internal copy)...
-xcopy /q /y "%SIM%\stage1\*.locked" "%SIM%\stage2\" >nul
-echo [%DATE% %TIME%] Copied *.locked to stage2 >> "%LOG%"
-call :progress "Exfiltrating" 30
-
-:: --- Simulate "persistence" (writes a note only) ---
-(
-  echo [SIM ONLY] Would set persistence here; actually writing a note.
-  echo Date: %DATE% %TIME%
-) > "%SIM%\persistence_note.txt"
-echo [%DATE% %TIME%] Wrote persistence_note.txt >> "%LOG%"
-timeout /t 1 >nul
-
-:: --- Fake scary messages & "shutdown" (not real) ---
+:: --- Fake scary message ---
 color 0C
 echo.
 echo !!! SYSTEM COMPROMISED (SIMULATION) !!!
 echo This is ONLY a demo. No changes outside SimSandbox.
-echo Attempting system shutdown in 10 seconds... (SIMULATED)
-call :countdown 10
-echo (No real shutdown performed.)
-echo [%DATE% %TIME%] Simulated shutdown >> "%LOG%"
-timeout /t 1 >nul
+timeout /t 5 >nul
 
 :: --- Restore stage: undo "encryption" ---
 echo Restoring files...
@@ -131,54 +113,13 @@ for %%F in ("%SIM%\stage1\*.locked") do (
   ren "%%~fF" "%%~nF.txt" 2>nul
 )
 echo [%DATE% %TIME%] Restored extensions >> "%LOG%"
-call :progress "Restoring" 25
 
 :: --- Cleanup sandbox completely ---
 echo Cleaning up sandbox...
-rd /s /q "%SIM%\stage2" "%SIM%\stage3" 2>nul
-echo [%DATE% %TIME%] Removed stage2 and stage3 >> "%LOG%"
-timeout /t 1 >nul
-
-echo Finalizing...
-echo [%DATE% %TIME%] Simulation complete >> "%LOG%"
-
-:: Pack a summary report (kept for your review)
-echo.
-echo A log was saved here:
-echo   %LOG%
-echo You may open it to review simulated steps.
-echo.
-echo Press any key to delete the entire SimSandbox (recommended)...
-pause >nul
 rd /s /q "%SIM%"
-echo Sandbox removed. Demo finished safely.
-color 07
-endlocal
-goto :EOF
+echo [%DATE% %TIME%] Removed sandbox >> "%LOG%"
 
-:: ================== helper routines ==================
-:progress
-:: %1 = label, %2 = steps
-set "LBL=%~1"
-set "STEPS=%~2"
-set /a i=0
-<nul set /p "=%LBL%: "
-:progress_loop
-if !i! GEQ %STEPS% goto :progress_end
-<nul set /p ="#"
-set /a i+=1
-ping -n 1 127.0.0.1 >nul
-goto :progress_loop
-:progress_end
 echo.
-goto :eof
-
-:countdown
-:: %1 = seconds
-set /a secs=%~1
-for /l %%S in (%secs%,-1,1) do (
-  <nul set /p ="%%S "
-  timeout /t 1 >nul
-)
-echo.
-goto :eof
+echo Simulation complete. Everything restored safely.
+pause
+exit /b
